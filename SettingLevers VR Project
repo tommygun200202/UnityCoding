@@ -1,0 +1,97 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using VR = UnityEngine.XR;
+using UnityEngine.UI;
+using UnityEngine.VFX;
+
+public class SettingLevers : MonoBehaviour
+{
+   [SerializeField] public GameObject lightGroup;
+    [SerializeField] public bool IsLightOn = true;
+   [SerializeField] public GameObject fireplace;
+    [SerializeField] public bool isFireOn = true;
+    [SerializeField] public AudioSource music;
+    [SerializeField] public bool isMusicOn = true;
+    [SerializeField] public GameObject blinds;
+    [SerializeField] public GameObject Environ1;
+    [SerializeField] public GameObject Environ2;
+    [SerializeField] public bool env1Or2;
+    // Start is called before the first frame update
+    void Start()
+    {
+        blinds.SetActive(false);
+        env1Or2 = false;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+
+    public void FirstLeverON()
+    {
+        IsLightOn = IsLightOn ? false : true;
+        if (IsLightOn == true)
+        {
+            /*This should be the first lever that is on the far left. It will be for the lights to be turned off and on. */
+            lightGroup.SetActive(false);
+        }
+        if(IsLightOn == false)
+        {
+            lightGroup.SetActive(true);
+        }
+    }
+
+    public void SecondLeverON()
+    {
+        isFireOn = isFireOn ? false : true;
+        if(isFireOn == true)
+        {
+            /*This is the middle lever, the Second one. This one will switch the fireplace on and Off */
+            fireplace.SetActive(true);
+        }
+        if (isFireOn == false)
+        {
+            fireplace.SetActive(false);
+        }
+    }
+
+    public void ThirdLeverON()
+    {
+        isMusicOn = isMusicOn ? false : true;
+        if(isMusicOn == true)
+        {
+            music.mute.Equals(0);
+        }
+        if (isMusicOn == false)
+        {
+            music.mute.Equals(1);
+        }
+    }
+
+    public void FourthLeverON()
+    {
+        StartCoroutine(SwitchingOver());
+    }
+
+    IEnumerator SwitchingOver()
+    {
+        blinds.SetActive(true);
+        env1Or2 = env1Or2 ? false : true;
+        if (env1Or2 == false)
+        {
+            Environ1.SetActive(false);
+            Environ2.SetActive(true);
+        }
+        if(env1Or2 == true)
+        {
+            Environ2.SetActive(false);
+            Environ1.SetActive(true);
+        }
+        yield return new WaitForSeconds(10);
+        blinds.SetActive(false);
+        Debug.Log("Blinds Completed! Scene Loaded...");
+    }
+}
