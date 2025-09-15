@@ -1,0 +1,26 @@
+using UnityEngine;
+
+public class CameraFollowing : MonoBehaviour
+{
+	public GameObject player;
+
+	public float xMin;
+
+	public float xMax;
+
+	public float yMin;
+
+	public float yMax;
+
+	private void Start()
+	{
+		player = GameObject.FindGameObjectWithTag("Player");
+	}
+
+	private void LateUpdate()
+	{
+		float x = Mathf.Clamp(player.transform.position.x, xMin, xMax);
+		float y = Mathf.Clamp(player.transform.position.y, yMin, yMax);
+		base.gameObject.transform.position = new Vector3(x, y, base.gameObject.transform.position.z);
+	}
+}
