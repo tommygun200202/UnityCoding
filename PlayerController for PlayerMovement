@@ -1,0 +1,52 @@
+using Photon.Pun;
+using UnityEngine;
+
+public class PlayerController : MonoBehaviourPunCallbacks
+{
+	public PhotonView view;
+
+	public float speed;
+
+	private void Start()
+	{
+		CameraWork _cameraWork = base.gameObject.GetComponent<CameraWork>();
+		if (_cameraWork != null)
+		{
+			if (base.photonView.IsMine)
+			{
+				_cameraWork.OnStartFollowing();
+			}
+		}
+		else
+		{
+			Debug.LogError("<Color=Red><a>Missing</a></Color> CameraWork Component on playerPrefab.", this);
+		}
+	}
+
+	private void Update()
+	{
+		if (view.IsMine)
+		{
+			if (Input.GetKeyDown("w"))
+			{
+				Vector3 movement = new Vector3(0f, 0f, speed * Time.deltaTime);
+				base.transform.position += movement;
+			}
+			if (Input.GetKeyDown("a"))
+			{
+				Vector3 movement2 = new Vector3((0f - speed) * Time.deltaTime, -0f, -0f);
+				base.transform.position += movement2;
+			}
+			if (Input.GetKeyDown("s"))
+			{
+				Vector3 movement3 = new Vector3(-0f, -0f, (0f - speed) * Time.deltaTime);
+				base.transform.position += movement3;
+			}
+			if (Input.GetKeyDown("d"))
+			{
+				Vector3 movement4 = new Vector3(speed * Time.deltaTime, 0f, 0f);
+				base.transform.position += movement4;
+			}
+		}
+	}
+}
