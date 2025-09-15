@@ -1,0 +1,119 @@
+using Photon.Pun;
+using UnityEngine;
+
+public class PlayerMovement : MonoBehaviourPunCallbacks
+{
+	[Range(0.1f, 1000f)]
+	public float moveSpeed = 1f;
+
+	[Range(0f, 1000f)]
+	public int runningBackwards = 50;
+
+	[Range(1f, 250f)]
+	public float jumpStrength = 10f;
+
+	[Range(0f, 100f)]
+	public int inAirPaneltyPercentage = 90;
+
+	[Range(0.1f, 100f)]
+	public float gravity = 2f;
+
+	[Range(0.1f, 100f)]
+	public float maxGravity = 100f;
+
+	private CharacterController characterController;
+
+	private bool isGoingBackwars = false;
+
+	private bool isGrounded = true;
+
+	private bool isRunning;
+
+	private float verticalVelocity = 1f;
+
+	private Vector3 move = Vector3.zero;
+
+	public PhotonView view;
+
+	private void Awake()
+	{
+		characterController = GetComponent<CharacterController>();
+		CameraWork _cameraWork = base.gameObject.GetComponent<CameraWork>();
+		if (_cameraWork != null)
+		{
+			if (base.photonView.IsMine)
+			{
+				_cameraWork.OnStartFollowing();
+			}
+		}
+		else
+		{
+			Debug.LogError("<Color=Red><a>Missing</a></Color> CameraWork Component on playerPrefab.", this);
+		}
+	}
+
+	private void Update()
+	{
+		if (view.IsMine)
+		{
+			CheckPlayerGoingBackwards();
+			isGrounded = characterController.isGrounded;
+			MovePlayer();
+		}
+	}
+
+	private void MovePlayer()
+	{
+		float inputHorizontal = Input.GetAxis("Horizontal");
+		float inputVertical = Input.GetAxis("Vertical");
+		Vector3 lateralMove = (base.transform.forward * inputVertical + base.transform.right * inputHorizontal) * (moveSpeed / 8f);
+		if (!isGrounded)
+		{
+			lateralMove *= 1f - (float)inAirPaneltyPercentage / 100f;
+		}
+		else if (isGoingBackwars)
+		{
+			lateralMove *= 1f - (float)runningBackwards / 100f;
+		}
+		move.x = lateralMove.x;
+		move.z = lateralMove.z;
+		ApplyGravity();
+		ApplyJump();
+		characterController.Move(move * Time.deltaTime);
+		if (Input.GetKeyDown(KeyCode.LeftShift))
+		{
+			moveSpeed = 750f;
+			isRunning = true;
+		}
+		if (Input.GetKeyUp(KeyCode.LeftShift))
+		{
+			moveSpeed = 200f;
+			isRunning = false;
+		}
+	}
+
+	private void ApplyGravity()
+	{
+		if (isGrounded)
+		{
+			verticalVelocity = 0f;
+		}
+		verticalVelocity -= Mathf.Sqrt(gravity * Time.fixedDeltaTime);
+		verticalVelocity = Mathf.Clamp(verticalVelocity, 0f - maxGravity, float.MaxValue);
+		move.y = verticalVelocity;
+	}
+
+	private void ApplyJump()
+	{
+		if (Input.GetButton("Jump") && isGrounded)
+		{
+			verticalVelocity += Mathf.Sqrt(jumpStrength * 2f * gravity);
+			move.y = verticalVelocity;
+		}
+	}
+
+	private void CheckPlayerGoingBackwards()
+	{
+		isGoingBackwars = Input.GetAxis("Vertical") <= -1f;
+	}
+}
