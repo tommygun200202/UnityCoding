@@ -1,0 +1,87 @@
+// Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+// Movement
+using UnityEngine;
+
+public class Movement : MonoBehaviour
+{
+	public int playerSpeed = 10;
+
+	public int playerJump = 100;
+
+	public float moveX;
+
+	private bool isGrounded = true;
+
+	private Vector3 characterScale;
+
+	public float characterScaleX;
+
+	private void Start()
+	{
+		characterScale = base.transform.localScale;
+		characterScaleX = characterScale.x;
+	}
+
+	private void Update()
+	{
+		PlayerMove();
+	}
+
+	private void PlayerMove()
+	{
+		moveX = Input.GetAxis("Horizontal");
+		if (moveX > 0f)
+		{
+			GetComponent<Animator>().SetTrigger("isRunning");
+		}
+		else if (moveX < 0f)
+		{
+			GetComponent<Animator>().SetTrigger("isRunning");
+		}
+		else if (moveX == 0f)
+		{
+			GetComponent<Animator>().ResetTrigger("isRunning");
+		}
+		if (Input.GetButtonDown("Jump"))
+		{
+			Jump();
+		}
+		if (Input.GetAxis("Horizontal") < 0f)
+		{
+			characterScale.x = 0f - characterScaleX;
+		}
+		if (Input.GetAxis("Horizontal") > 0f)
+		{
+			characterScale.x = characterScaleX;
+		}
+		base.transform.localScale = characterScale;
+		base.gameObject.GetComponent<Rigidbody2D>().velocity = new Vector2(moveX * (float)playerSpeed, base.gameObject.GetComponent<Rigidbody2D>().velocity.y);
+	}
+
+	private void Jump()
+	{
+		if (isGrounded)
+		{
+			GetComponent<Rigidbody2D>().AddForce(Vector2.up * playerJump);
+			isGrounded = false;
+		}
+	}
+
+	private void OnCollisionEnter2D(Collision2D collision)
+	{
+		Debug.Log("Touched Ground");
+		if (collision.gameObject.tag == "Ground" || collision.gameObject.tag == "Obstacle")
+		{
+			isGrounded = true;
+		}
+	}
+
+	private void OnTriggerEnter2D(Collider2D other)
+	{
+		if (other.gameObject.tag == "Hat")
+		{
+			GetComponent<Rigidbody2D>().AddForce(Vector2.up * playerJump);
+			Object.Destroy(other.transform.parent.gameObject);
+		}
+	}
+}
