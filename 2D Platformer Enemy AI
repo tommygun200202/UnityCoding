@@ -1,0 +1,51 @@
+using UnityEngine;
+
+public class EnemyAI : MonoBehaviour
+{
+	public bool isRight;
+
+	public int faceDirection;
+
+	public int enemySpeed;
+
+	private void Start()
+	{
+		isRight = false;
+	}
+
+	private void Update()
+	{
+		Move();
+		if (isRight)
+		{
+			faceDirection = 1;
+			base.gameObject.transform.localScale = new Vector3(2.3f, 2.3f, 1f);
+		}
+		else
+		{
+			faceDirection = -1;
+			base.gameObject.transform.localScale = new Vector3(-2.3f, 2.3f, 1f);
+		}
+	}
+
+	private void Move()
+	{
+		base.gameObject.GetComponent<Rigidbody2D>().velocity = new Vector2(faceDirection * enemySpeed, base.gameObject.GetComponent<Rigidbody2D>().velocity.y);
+	}
+
+	private void OnTriggerEnter2D(Collider2D col)
+	{
+		Debug.Log("Collision Successful");
+		if (col.gameObject.tag == "Obstacle" || col.gameObject.tag == "Enemy")
+		{
+			if (isRight)
+			{
+				isRight = false;
+			}
+			else
+			{
+				isRight = true;
+			}
+		}
+	}
+}
