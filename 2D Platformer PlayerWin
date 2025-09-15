@@ -1,0 +1,19 @@
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class PlayerWin : MonoBehaviour
+{
+	private void OnCollisionEnter2D(Collision2D collision)
+	{
+		Debug.Log("Collision Successful");
+		if (collision.gameObject.tag == "WinPoint")
+		{
+			Win();
+		}
+	}
+
+	private void Win()
+	{
+		SceneManager.LoadScene("win");
+	}
+}
